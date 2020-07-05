@@ -76,6 +76,7 @@ class Raycast
         }
 
         this.running = true;
+        this._startListening();
         this._animate();
     }
 
@@ -97,6 +98,66 @@ class Raycast
 
     _update(dt)
     {
+    }
+
+    handleEvent(e)
+    {
+        return (function (evtType, events)
+        {
+            switch (evtType)
+            {
+                case events.KEYDOWN:
+                    this.onKeyDown(e);
+                    break;
+                case events.KEYUP:
+                    this.onKeyUp(e);
+                    break;
+            }
+        }.bind(this))(e.type, EVENTS);
+    }
+
+    _startListening()
+    {
+        document.addEventListener(EVENTS.KEYDOWN, this);
+        document.addEventListener(EVENTS.KEYUP, this);
+    }
+
+    onKeyDown(e)
+    {
+        switch (e.keyCode)
+        {
+            case KEY_CODES.UP:
+                console.log('UP');
+                break;
+            case KEY_CODES.DOWN:
+                console.log('DOWN');
+                break;
+            case KEY_CODES.LEFT:
+                console.log('LEFT');
+                break;
+            case KEY_CODES.RIGHT:
+                console.log('RIGHT');
+                break;
+        }
+    }
+
+    onKeyUp(e)
+    {
+        switch (e.keyCode)
+        {
+            case KEY_CODES.UP:
+                console.log('UP RELEASED');
+                break;
+            case KEY_CODES.DOWN:
+                console.log('DOWN RELEASED');
+                break;
+            case KEY_CODES.LEFT:
+                console.log('LEFT RELEASED');
+                break;
+            case KEY_CODES.RIGHT:
+                console.log('RIGHT RELEASED');
+                break;
+        }
     }
 
     _draw()
