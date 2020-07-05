@@ -18,6 +18,40 @@ class Canvas
     }
 }
 
+class MiniMap
+{
+    constructor(ctx, mapData, width, height, scale)
+    {
+        this.ctx = ctx;
+        this.width = width;
+        this.height = height;
+        this.data = mapData;
+        this.scale = scale;
+    }
+
+    draw()
+    {
+        for (let y = 0; y < this.height; y++)
+        {
+            for (let x = 0; x < this.width; x++)
+            {
+                const cell = this.data[y][x];
+
+                if (cell === 1)
+                {
+                    this.ctx.fillStyle = '#7f7f7f';
+                    this.ctx.fillRect(
+                      x * this.scale,
+                      y * this.scale,
+                      this.scale,
+                      this.scale
+                    );
+                }
+            }
+        }
+    }
+}
+
 class Raycast
 {
     constructor(canvas)
@@ -30,6 +64,7 @@ class Raycast
         this.deltaTime = 0;
         this.elapsedTime = 0;
         this.ctx = canvas.context;
+        this.miniMap = new MiniMap(this.ctx, RAYCAST_MAP, RAYCAST_MAP[0].length, RAYCAST_MAP.length, RAYCAST_MINI_MAP_SCALE);
     }
 
     start()
@@ -66,6 +101,7 @@ class Raycast
     _draw()
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.miniMap.draw();
     }
 }
 
