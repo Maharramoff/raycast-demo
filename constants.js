@@ -10,3 +10,4 @@ const RAYCAST_MAP = [
 ];
 
 const RAYCAST_MINI_MAP_SCALE = 20;
+const RAYCAST_MINI_MAP_WALL_COLOR = '#7f7f7f';

@@ -20,13 +20,14 @@ class Canvas
 
 class MiniMap
 {
-    constructor(ctx, mapData, width, height, scale)
+    constructor(ctx, mapData, width, height, scale, wallColor)
     {
         this.ctx = ctx;
         this.width = width;
         this.height = height;
         this.data = mapData;
         this.scale = scale;
+        this.wallColor = wallColor;
     }
 
     draw()
@@ -39,7 +40,7 @@ class MiniMap
 
                 if (cell === 1)
                 {
-                    this.ctx.fillStyle = '#7f7f7f';
+                    this.ctx.fillStyle = this.wallColor;
                     this.ctx.fillRect(
                       x * this.scale,
                       y * this.scale,
@@ -64,7 +65,7 @@ class Raycast
         this.deltaTime = 0;
         this.elapsedTime = 0;
         this.ctx = canvas.context;
-        this.miniMap = new MiniMap(this.ctx, RAYCAST_MAP, RAYCAST_MAP[0].length, RAYCAST_MAP.length, RAYCAST_MINI_MAP_SCALE);
+        this.miniMap = new MiniMap(this.ctx, RAYCAST_MAP, RAYCAST_MAP[0].length, RAYCAST_MAP.length, RAYCAST_MINI_MAP_SCALE, RAYCAST_MINI_MAP_WALL_COLOR);
     }
 
     start()
