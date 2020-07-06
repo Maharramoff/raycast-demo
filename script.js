@@ -18,6 +18,37 @@ class Canvas
     }
 }
 
+class Player
+{
+    constructor(ctx, x, y, speed, rotationSpeed)
+    {
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.rotationSpeed = rotationSpeed;
+        this.rotationAngle = 0;
+        this.direction = 0;
+        this.turn = 0;
+        this.ctx = ctx;
+        this.radius = 2.5;
+    }
+
+    update(dt)
+    {
+        this.rotationAngle += this.turn * this.rotationSpeed * Math.PI / 180 * dt;
+        this.x += Math.cos(this.rotationAngle) * this.direction * this.speed * dt;
+        this.y += Math.sin(this.rotationAngle) * this.direction * this.speed * dt;
+    }
+
+    draw()
+    {
+        this.ctx.fillStyle = '#fe0807';
+        this.ctx.beginPath();
+        this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius, 0, 2 * Math.PI);
+        this.ctx.fill();
+    }
+}
+
 class MiniMap
 {
     constructor(ctx, mapData, width, height, scale, wallColor)
@@ -65,7 +96,14 @@ class Raycast
         this.deltaTime = 0;
         this.elapsedTime = 0;
         this.ctx = canvas.context;
-        this.miniMap = new MiniMap(this.ctx, RAYCAST_MAP, RAYCAST_MAP[0].length, RAYCAST_MAP.length, RAYCAST_MINI_MAP_SCALE, RAYCAST_MINI_MAP_WALL_COLOR);
+        this.miniMap = new MiniMap(
+          this.ctx,
+          RAYCAST_MAP, RAYCAST_MAP[0].length,
+          RAYCAST_MAP.length,
+          RAYCAST_MINI_MAP_SCALE,
+          RAYCAST_MINI_MAP_WALL_COLOR
+        );
+        this.player = new Player(this.ctx, 5, 5, 1, 300);
     }
 
     start()
@@ -98,6 +136,7 @@ class Raycast
 
     _update(dt)
     {
+        this.player.update(dt);
     }
 
     handleEvent(e)
@@ -127,16 +166,16 @@ class Raycast
         switch (e.keyCode)
         {
             case KEY_CODES.UP:
-                console.log('UP');
+                this.player.direction = 1;
                 break;
             case KEY_CODES.DOWN:
-                console.log('DOWN');
+                this.player.direction = -1;
                 break;
             case KEY_CODES.LEFT:
-                console.log('LEFT');
+                this.player.turn = -1;
                 break;
             case KEY_CODES.RIGHT:
-                console.log('RIGHT');
+                this.player.turn = 1;
                 break;
         }
     }
@@ -146,16 +185,12 @@ class Raycast
         switch (e.keyCode)
         {
             case KEY_CODES.UP:
-                console.log('UP RELEASED');
-                break;
             case KEY_CODES.DOWN:
-                console.log('DOWN RELEASED');
+                this.player.direction = 0;
                 break;
             case KEY_CODES.LEFT:
-                console.log('LEFT RELEASED');
-                break;
             case KEY_CODES.RIGHT:
-                console.log('RIGHT RELEASED');
+                this.player.turn = 0;
                 break;
         }
     }
@@ -164,6 +199,7 @@ class Raycast
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.miniMap.draw();
+        this.player.draw();
     }
 }
 
