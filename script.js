@@ -36,8 +36,16 @@ class Player
     update(dt)
     {
         this.rotationAngle += this.turn * this.rotationSpeed * Math.PI / 180 * dt;
-        this.x += Math.cos(this.rotationAngle) * this.direction * this.speed * dt;
-        this.y += Math.sin(this.rotationAngle) * this.direction * this.speed * dt;
+        const newX = this.x + Math.cos(this.rotationAngle) * this.direction * this.speed * dt;
+        const newY = this.y + Math.sin(this.rotationAngle) * this.direction * this.speed * dt;
+
+        if (this.collision(newX, newY))
+        {
+            return;
+        }
+
+        this.x = newX;
+        this.y = newY;
     }
 
     draw()
@@ -46,6 +54,13 @@ class Player
         this.ctx.beginPath();
         this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius, 0, 2 * Math.PI);
         this.ctx.fill();
+    }
+
+    collision (newX, newY)
+    {
+        if (newY < 0 || newY > RAYCAST_MAP.length || newX < 0 || newX > RAYCAST_MAP[0].length)
+            return true;
+        return (RAYCAST_MAP[Math.floor(newY)][Math.floor(newX)] !== 0);
     }
 }
 
