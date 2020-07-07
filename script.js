@@ -18,6 +18,36 @@ class Canvas
     }
 }
 
+class Ray
+{
+    constructor(ctx, x, y)
+    {
+        this.x = x;
+        this.y = y;
+        this.rotationAngle = 0;
+        this.ctx = ctx;
+    }
+
+    update(entity)
+    {
+        [this.x, this.y, this.rotationAngle] = [entity.x, entity.y, entity.rotationAngle];
+    }
+
+    draw()
+    {
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 0.5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE);
+        this.ctx.lineTo(
+          (this.x + Math.cos(this.rotationAngle)) * RAYCAST_MINI_MAP_SCALE,
+          (this.y + Math.sin(this.rotationAngle)) * RAYCAST_MINI_MAP_SCALE
+        );
+        this.ctx.closePath();
+        this.ctx.stroke();
+    }
+}
+
 class Player
 {
     constructor(ctx, x, y, speed, rotationSpeed)
@@ -56,10 +86,12 @@ class Player
         this.ctx.fill();
     }
 
-    collision (newX, newY)
+    collision(newX, newY)
     {
         if (newY < 0 || newY > RAYCAST_MAP.length || newX < 0 || newX > RAYCAST_MAP[0].length)
+        {
             return true;
+        }
         return (RAYCAST_MAP[Math.floor(newY)][Math.floor(newX)] !== 0);
     }
 }
@@ -119,6 +151,7 @@ class Raycast
           RAYCAST_MINI_MAP_WALL_COLOR
         );
         this.player = new Player(this.ctx, 5, 5, 1, 300);
+        this.ray = new Ray(this.ctx, this.player.x, this.player.y);
     }
 
     start()
@@ -152,6 +185,7 @@ class Raycast
     _update(dt)
     {
         this.player.update(dt);
+        this.ray.update(this.player);
     }
 
     handleEvent(e)
@@ -215,6 +249,7 @@ class Raycast
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.miniMap.draw();
         this.player.draw();
+        this.ray.draw();
     }
 }
 
