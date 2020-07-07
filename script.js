@@ -36,7 +36,7 @@ class Ray
     draw()
     {
         this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 0.5;
+        this.ctx.lineWidth = 1.0;
         this.ctx.beginPath();
         this.ctx.moveTo(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE);
         this.ctx.lineTo(
@@ -60,7 +60,7 @@ class Player
         this.direction = 0;
         this.turn = 0;
         this.ctx = ctx;
-        this.radius = 2.5;
+        this.radius = 0.1;
     }
 
     update(dt)
@@ -82,16 +82,22 @@ class Player
     {
         this.ctx.fillStyle = '#fe0807';
         this.ctx.beginPath();
-        this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius, 0, 2 * Math.PI);
+        this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius * RAYCAST_MINI_MAP_SCALE, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
     collision(newX, newY)
     {
-        if (newY < 0 || newY > RAYCAST_MAP.length || newX < 0 || newX > RAYCAST_MAP[0].length)
+        if (newY - this.radius < 1 || newY + this.radius > RAYCAST_MAP.length - 1)
         {
             return true;
         }
+
+        if (newX - this.radius < 1 || newX + this.radius > RAYCAST_MAP[0].length - 1)
+        {
+            return true;
+        }
+
         return (RAYCAST_MAP[Math.floor(newY)][Math.floor(newX)] !== 0);
     }
 }
@@ -150,7 +156,7 @@ class Raycast
           RAYCAST_MINI_MAP_SCALE,
           RAYCAST_MINI_MAP_WALL_COLOR
         );
-        this.player = new Player(this.ctx, 5, 5, 1, 300);
+        this.player = new Player(this.ctx, 4, 4, 1, 300);
         this.ray = new Ray(this.ctx, this.player.x, this.player.y);
     }
 
