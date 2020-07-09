@@ -27,6 +27,8 @@ class Ray
         this.rotationAngle = 0;
         this.rayCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.rayCanvas.context;
+        this.ctx.strokeStyle = "#000000";
+        this.ctx.lineWidth = 1.0;
     }
 
     update(entity)
@@ -37,8 +39,6 @@ class Ray
     draw()
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.strokeStyle = "#000000";
-        this.ctx.lineWidth = 1.0;
         this.ctx.beginPath();
         this.ctx.moveTo(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE);
         this.ctx.lineTo(
@@ -63,6 +63,7 @@ class Player
         this.turn = 0;
         this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.playerCanvas.context;
+        this.ctx.fillStyle = '#fe0807';
         this.radius = 0.1;
     }
 
@@ -84,7 +85,6 @@ class Player
     draw()
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.fillStyle = '#fe0807';
         this.ctx.beginPath();
         this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius * RAYCAST_MINI_MAP_SCALE, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -116,6 +116,7 @@ class MiniMap
         this.data = mapData;
         this.scale = scale;
         this.wallColor = wallColor;
+        this.ctx.fillStyle = this.wallColor;
     }
 
     draw()
@@ -129,7 +130,6 @@ class MiniMap
 
                 if (cell === 1)
                 {
-                    this.ctx.fillStyle = this.wallColor;
                     this.ctx.fillRect(
                       x * this.scale,
                       y * this.scale,
