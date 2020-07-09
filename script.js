@@ -13,7 +13,7 @@ class Canvas
         this.canvas = document.createElement('canvas');
         this.canvas.width = width;
         this.canvas.height = height;
-        document.body.appendChild(this.canvas);
+        document.body.append(this.canvas);
         this.context = this.canvas.getContext('2d');
     }
 }
@@ -25,7 +25,8 @@ class Ray
         this.x = x;
         this.y = y;
         this.rotationAngle = 0;
-        this.ctx = ctx;
+        this.rayCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
+        this.ctx = this.rayCanvas.context;
     }
 
     update(entity)
@@ -35,6 +36,7 @@ class Ray
 
     draw()
     {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.strokeStyle = "#000000";
         this.ctx.lineWidth = 1.0;
         this.ctx.beginPath();
@@ -59,7 +61,8 @@ class Player
         this.rotationAngle = 0;
         this.direction = 0;
         this.turn = 0;
-        this.ctx = ctx;
+        this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
+        this.ctx = this.playerCanvas.context;
         this.radius = 0.1;
     }
 
@@ -80,6 +83,7 @@ class Player
 
     draw()
     {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.fillStyle = '#fe0807';
         this.ctx.beginPath();
         this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius * RAYCAST_MINI_MAP_SCALE, 0, 2 * Math.PI);
@@ -116,6 +120,7 @@ class MiniMap
 
     draw()
     {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         for (let y = 0; y < this.height; y++)
         {
             for (let x = 0; x < this.width; x++)
@@ -252,7 +257,6 @@ class Raycast
 
     _draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.miniMap.draw();
         this.player.draw();
         this.ray.draw();
