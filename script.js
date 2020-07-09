@@ -117,11 +117,15 @@ class MiniMap
         this.scale = scale;
         this.wallColor = wallColor;
         this.ctx.fillStyle = this.wallColor;
+        this.completed = false;
     }
 
     draw()
     {
+        if (this.completed) return;
+
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
         for (let y = 0; y < this.height; y++)
         {
             for (let x = 0; x < this.width; x++)
@@ -139,6 +143,8 @@ class MiniMap
                 }
             }
         }
+
+        this.completed = true;
     }
 }
 
