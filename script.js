@@ -26,20 +26,20 @@ class Ray
         this.playerX = playerX;
         this.playerY = playerY;
         this.ctx = ctx;
-        this.ctx.strokeStyle = "#FF0000";
-        this.ctx.lineWidth = 0.1;
     }
 
     draw()
     {
         this.ctx.beginPath();
+        this.ctx.strokeStyle = "rgba(242, 199, 114, .5)";
+        this.ctx.lineWidth = 1.0;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
-          this.playerX + Math.cos(this.angle) * 20,
-          this.playerY + Math.sin(this.angle) * 20
+          this.playerX + Math.cos(this.angle) * 30,
+          this.playerY + Math.sin(this.angle) * 30
         );
-        this.ctx.closePath();
         this.ctx.stroke();
+        this.ctx.closePath();
     }
 }
 
