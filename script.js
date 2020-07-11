@@ -27,7 +27,7 @@ class Ray
         this.rotationAngle = 0;
         this.rayCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.rayCanvas.context;
-        this.ctx.strokeStyle = "#000000";
+        this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 1.0;
     }
 
@@ -40,10 +40,10 @@ class Ray
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE);
+        this.ctx.moveTo(this.x * TILE_SIZE, this.y * TILE_SIZE);
         this.ctx.lineTo(
-          (this.x + Math.cos(this.rotationAngle)) * RAYCAST_MINI_MAP_SCALE,
-          (this.y + Math.sin(this.rotationAngle)) * RAYCAST_MINI_MAP_SCALE
+          (this.x + Math.cos(this.rotationAngle)) * TILE_SIZE,
+          (this.y + Math.sin(this.rotationAngle)) * TILE_SIZE
         );
         this.ctx.closePath();
         this.ctx.stroke();
@@ -57,10 +57,10 @@ class Player
         this.x = x;
         this.y = y;
         this.speed = speed;
-        this.rotationSpeed = rotationSpeed;
+        this.rotationSpeed = rotationSpeed * (Math.PI / 180);
         this.rotationAngle = 0;
-        this.direction = 0;
-        this.turn = 0;
+        this.moveDirection = 0;
+        this.turnDirection = 0;
         this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.playerCanvas.context;
         this.ctx.fillStyle = '#fe0807';
@@ -69,9 +69,9 @@ class Player
 
     update(dt)
     {
-        this.rotationAngle += this.turn * this.rotationSpeed * Math.PI / 180 * dt;
-        const newX = this.x + Math.cos(this.rotationAngle) * this.direction * this.speed * dt;
-        const newY = this.y + Math.sin(this.rotationAngle) * this.direction * this.speed * dt;
+        this.rotationAngle += this.turnDirection * this.rotationSpeed;
+        const newX = this.x + Math.cos(this.rotationAngle) * this.moveDirection * this.speed * dt;
+        const newY = this.y + Math.sin(this.rotationAngle) * this.moveDirection * this.speed * dt;
 
         if (this.collision(newX, newY))
         {
@@ -86,23 +86,23 @@ class Player
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.beginPath();
-        this.ctx.arc(this.x * RAYCAST_MINI_MAP_SCALE, this.y * RAYCAST_MINI_MAP_SCALE, this.radius * RAYCAST_MINI_MAP_SCALE, 0, 2 * Math.PI);
+        this.ctx.arc(this.x * TILE_SIZE, this.y * TILE_SIZE, this.radius * TILE_SIZE, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
     collision(newX, newY)
     {
-        if (newY - this.radius < 1 || newY + this.radius > RAYCAST_MAP.length - 1)
+        if (newY - this.radius < 1 || newY + this.radius > MAP_GRID.length - 1)
         {
             return true;
         }
 
-        if (newX - this.radius < 1 || newX + this.radius > RAYCAST_MAP[0].length - 1)
+        if (newX - this.radius < 1 || newX + this.radius > MAP_GRID[0].length - 1)
         {
             return true;
         }
 
-        return (RAYCAST_MAP[Math.floor(newY)][Math.floor(newX)] !== 0);
+        return (MAP_GRID[Math.floor(newY)][Math.floor(newX)] !== 0);
     }
 }
 
@@ -162,12 +162,12 @@ class Raycast
         this.ctx = canvas.context;
         this.miniMap = new MiniMap(
           this.ctx,
-          RAYCAST_MAP, RAYCAST_MAP[0].length,
-          RAYCAST_MAP.length,
-          RAYCAST_MINI_MAP_SCALE,
-          RAYCAST_MINI_MAP_WALL_COLOR
+          MAP_GRID, MAP_GRID[0].length,
+          MAP_GRID.length,
+          TILE_SIZE,
+          WALL_COLOR
         );
-        this.player = new Player(this.ctx, 4, 4, 1, 300);
+        this.player = new Player(this.ctx, 4, 4, 2, 2);
         this.ray = new Ray(this.ctx, this.player.x, this.player.y);
     }
 
@@ -232,16 +232,16 @@ class Raycast
         switch (e.keyCode)
         {
             case KEY_CODES.UP:
-                this.player.direction = 1;
+                this.player.moveDirection = 1;
                 break;
             case KEY_CODES.DOWN:
-                this.player.direction = -1;
+                this.player.moveDirection = -1;
                 break;
             case KEY_CODES.LEFT:
-                this.player.turn = -1;
+                this.player.turnDirection = -1;
                 break;
             case KEY_CODES.RIGHT:
-                this.player.turn = 1;
+                this.player.turnDirection = 1;
                 break;
         }
     }
@@ -252,11 +252,11 @@ class Raycast
         {
             case KEY_CODES.UP:
             case KEY_CODES.DOWN:
-                this.player.direction = 0;
+                this.player.moveDirection = 0;
                 break;
             case KEY_CODES.LEFT:
             case KEY_CODES.RIGHT:
-                this.player.turn = 0;
+                this.player.turnDirection = 0;
                 break;
         }
     }
@@ -269,5 +269,5 @@ class Raycast
     }
 }
 
-const canvas = new Canvas(RAYCAST_MAP[0].length * RAYCAST_MINI_MAP_SCALE, RAYCAST_MAP.length * RAYCAST_MINI_MAP_SCALE);
+const canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 new Raycast(canvas).start();

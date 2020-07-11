@@ -1,4 +1,4 @@
-const RAYCAST_MAP = [
+const MAP_GRID = [
     [1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 1, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 1, 0, 1],
@@ -8,8 +8,10 @@ const RAYCAST_MAP = [
     [1, 1, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1],
 ];
-const RAYCAST_MINI_MAP_SCALE = 25;
-const RAYCAST_MINI_MAP_WALL_COLOR = '#7f7f7f';
+const TILE_SIZE = 25;
+const WALL_COLOR = '#7f7f7f';
+const SCREEN_WIDTH = TILE_SIZE * MAP_GRID[0].length;
+const SCREEN_HEIGHT = TILE_SIZE * MAP_GRID.length;
 
 // Player
 const KEY_CODES = {
