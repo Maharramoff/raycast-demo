@@ -31,8 +31,8 @@ class Ray
     draw()
     {
         this.ctx.beginPath();
-        this.ctx.strokeStyle = "rgba(242, 199, 114, .5)";
-        this.ctx.lineWidth = 1.0;
+        this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
+        this.ctx.lineWidth = 0.5;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
           this.playerX + Math.cos(this.angle) * 30,
@@ -57,7 +57,7 @@ class Player
         this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.playerCanvas.context;
         this.ctx.fillStyle = '#fe0807';
-        this.radius = 2.4;
+        this.radius = 3.0;
     }
 
     update()
@@ -90,15 +90,16 @@ class Player
 
 class MiniMap
 {
-    constructor(ctx, mapData, width, height, scale, wallColor, spaceColor)
+    constructor(ctx, mapData, width, height, scale, wallColor, spaceColor, wallBorderColor)
     {
         this.ctx = ctx;
+        this.ctx.canvas.style.backgroundColor = spaceColor;
         this.width = width;
         this.height = height;
         this.grid = mapData;
         this.scale = scale;
         this.wallColor = wallColor;
-        this.spaceColor = spaceColor;
+        this.wallBorderColor = wallBorderColor;
         this.completed = false;
     }
 
@@ -113,14 +114,24 @@ class MiniMap
             for (let x = 0; x < this.width; x++)
             {
                 const tile = this.grid[y][x];
-                this.ctx.fillStyle = tile === 1 ? this.wallColor : this.spaceColor;
-                this.ctx.fillRect(
-                  x * this.scale,
-                  y * this.scale,
-                  this.scale,
-                  this.scale
-                );
 
+                if (tile === 1)
+                {
+                    this.ctx.fillStyle = this.wallColor;
+                    this.ctx.fillRect(
+                      x * this.scale,
+                      y * this.scale,
+                      this.scale,
+                      this.scale
+                    );
+                    this.ctx.strokeStyle = this.wallBorderColor;
+                    this.ctx.strokeRect(
+                      x * this.scale,
+                      y * this.scale,
+                      this.scale,
+                      this.scale)
+                    this.ctx.stroke();
+                }
             }
         }
 
@@ -146,7 +157,8 @@ class Raycast
           MAP_GRID.length,
           TILE_SIZE,
           WALL_COLOR,
-          SPACE_COLOR
+          SPACE_COLOR,
+          WALL_BORDER_COLOR
         );
         this.rayCanvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5, 2);

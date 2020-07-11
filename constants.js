@@ -10,7 +10,8 @@ const MAP_GRID = [
 ];
 const TILE_SIZE = 24;
 const WALL_COLOR = '#7f7f7f';
-const SPACE_COLOR = '#ffffff';
+const SPACE_COLOR = '#e5e5e5';
+const WALL_BORDER_COLOR = '#4c4c4c';
 const SCREEN_WIDTH = TILE_SIZE * MAP_GRID[0].length;
 const SCREEN_HEIGHT = TILE_SIZE * MAP_GRID.length;
 
@@ -26,6 +27,7 @@ const EVENTS = {
     KEYUP: 'keyup',
 };
 const FIELD_OF_VIEW = 60 * (Math.PI / 180);
+const FIELD_OF_VIEW_COLOR = 'rgba(242, 199, 114, 1)';
 
-const WALL_STRIP_WIDTH = 20;
+const WALL_STRIP_WIDTH = 10;
 const RAYS_COUNT = SCREEN_WIDTH / WALL_STRIP_WIDTH;
