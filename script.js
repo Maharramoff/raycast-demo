@@ -40,10 +40,10 @@ class Ray
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x * TILE_SIZE, this.y * TILE_SIZE);
+        this.ctx.moveTo(this.x, this.y);
         this.ctx.lineTo(
-          (this.x + Math.cos(this.rotationAngle)) * TILE_SIZE,
-          (this.y + Math.sin(this.rotationAngle)) * TILE_SIZE
+          this.x + Math.cos(this.rotationAngle) * 20,
+          this.y + Math.sin(this.rotationAngle) * 20
         );
         this.ctx.closePath();
         this.ctx.stroke();
@@ -64,59 +64,48 @@ class Player
         this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.playerCanvas.context;
         this.ctx.fillStyle = '#fe0807';
-        this.radius = 0.1;
+        this.radius = 2.4;
     }
 
-    update(dt)
+    update()
     {
         this.rotationAngle += this.turnDirection * this.rotationSpeed;
-        const newX = this.x + Math.cos(this.rotationAngle) * this.moveDirection * this.speed * dt;
-        const newY = this.y + Math.sin(this.rotationAngle) * this.moveDirection * this.speed * dt;
+        const newX = this.x + Math.cos(this.rotationAngle) * this.moveDirection * this.speed;
+        const newY = this.y + Math.sin(this.rotationAngle) * this.moveDirection * this.speed;
 
-        if (this.collision(newX, newY))
+        if (!this.collision(newX, newY))
         {
-            return;
+            this.x = newX;
+            this.y = newY;
         }
-
-        this.x = newX;
-        this.y = newY;
     }
 
     draw()
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.beginPath();
-        this.ctx.arc(this.x * TILE_SIZE, this.y * TILE_SIZE, this.radius * TILE_SIZE, 0, 2 * Math.PI);
+        this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
     collision(newX, newY)
     {
-        if (newY - this.radius < 1 || newY + this.radius > MAP_GRID.length - 1)
-        {
-            return true;
-        }
-
-        if (newX - this.radius < 1 || newX + this.radius > MAP_GRID[0].length - 1)
-        {
-            return true;
-        }
-
-        return (MAP_GRID[Math.floor(newY)][Math.floor(newX)] !== 0);
+        return (MAP_GRID[Math.floor((newY + this.radius) / TILE_SIZE)][Math.floor((newX + this.radius) / TILE_SIZE)] !== 0) ||
+          (MAP_GRID[Math.floor((newY - this.radius) / TILE_SIZE)][Math.floor((newX - this.radius) / TILE_SIZE)] !== 0)
     }
 }
 
 class MiniMap
 {
-    constructor(ctx, mapData, width, height, scale, wallColor)
+    constructor(ctx, mapData, width, height, scale, wallColor, spaceColor)
     {
         this.ctx = ctx;
         this.width = width;
         this.height = height;
-        this.data = mapData;
+        this.grid = mapData;
         this.scale = scale;
         this.wallColor = wallColor;
-        this.ctx.fillStyle = this.wallColor;
+        this.spaceColor = spaceColor;
         this.completed = false;
     }
 
@@ -130,17 +119,15 @@ class MiniMap
         {
             for (let x = 0; x < this.width; x++)
             {
-                const cell = this.data[y][x];
+                const tile = this.grid[y][x];
+                this.ctx.fillStyle = tile === 1 ? this.wallColor : this.spaceColor;
+                this.ctx.fillRect(
+                  x * this.scale,
+                  y * this.scale,
+                  this.scale,
+                  this.scale
+                );
 
-                if (cell === 1)
-                {
-                    this.ctx.fillRect(
-                      x * this.scale,
-                      y * this.scale,
-                      this.scale,
-                      this.scale
-                    );
-                }
             }
         }
 
@@ -165,9 +152,10 @@ class Raycast
           MAP_GRID, MAP_GRID[0].length,
           MAP_GRID.length,
           TILE_SIZE,
-          WALL_COLOR
+          WALL_COLOR,
+          SPACE_COLOR
         );
-        this.player = new Player(this.ctx, 4, 4, 2, 2);
+        this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5, 2);
         this.ray = new Ray(this.ctx, this.player.x, this.player.y);
     }
 
@@ -191,7 +179,7 @@ class Raycast
         this.elapsedTime += this.deltaTime;
         while (this.elapsedTime > this.step)
         {
-            this._update(this.step);
+            this._update();
             this.elapsedTime -= this.step;
         }
         this._draw();
@@ -199,9 +187,9 @@ class Raycast
         requestAnimationFrame(() => this._animate());
     }
 
-    _update(dt)
+    _update()
     {
-        this.player.update(dt);
+        this.player.update();
         this.ray.update(this.player);
     }
 
