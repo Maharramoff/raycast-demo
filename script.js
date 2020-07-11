@@ -20,30 +20,23 @@ class Canvas
 
 class Ray
 {
-    constructor(ctx, x, y)
+    constructor(angle, playerX, playerY, ctx)
     {
-        this.x = x;
-        this.y = y;
-        this.rotationAngle = 0;
-        this.rayCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
-        this.ctx = this.rayCanvas.context;
-        this.ctx.strokeStyle = '#000000';
-        this.ctx.lineWidth = 1.0;
-    }
-
-    update(entity)
-    {
-        [this.x, this.y, this.rotationAngle] = [entity.x, entity.y, entity.rotationAngle];
+        this.angle = angle;
+        this.playerX = playerX;
+        this.playerY = playerY;
+        this.ctx = ctx;
+        this.ctx.strokeStyle = "#FF0000";
+        this.ctx.lineWidth = 0.1;
     }
 
     draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.beginPath();
-        this.ctx.moveTo(this.x, this.y);
+        this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
-          this.x + Math.cos(this.rotationAngle) * 20,
-          this.y + Math.sin(this.rotationAngle) * 20
+          this.playerX + Math.cos(this.angle) * 20,
+          this.playerY + Math.sin(this.angle) * 20
         );
         this.ctx.closePath();
         this.ctx.stroke();
@@ -155,8 +148,9 @@ class Raycast
           WALL_COLOR,
           SPACE_COLOR
         );
+        this.rayCanvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
         this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5, 2);
-        this.ray = new Ray(this.ctx, this.player.x, this.player.y);
+        this.rays = [];
     }
 
     start()
@@ -190,7 +184,18 @@ class Raycast
     _update()
     {
         this.player.update();
-        this.ray.update(this.player);
+        this.castRays();
+    }
+
+    castRays()
+    {
+        let rayAngle = this.player.rotationAngle - (FIELD_OF_VIEW / 2);
+        this.rays = [];
+        for (let i = 0; i < RAYS_COUNT; i++)
+        {
+            this.rays.push(new Ray(rayAngle, this.player.x, this.player.y, this.rayCanvas.context));
+            rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
+        }
     }
 
     handleEvent(e)
@@ -253,7 +258,8 @@ class Raycast
     {
         this.miniMap.draw();
         this.player.draw();
-        this.ray.draw();
+        this.rayCanvas.context.canvas.width = this.rayCanvas.context.canvas.width;
+        this.rays.forEach((ray) => ray.draw());
     }
 }
 

@@ -21,8 +21,11 @@ const KEY_CODES = {
     RIGHT: 39,
     DOWN: 40,
 };
-
 const EVENTS = {
     KEYDOWN: 'keydown',
     KEYUP: 'keyup',
 };
+const FIELD_OF_VIEW = 60 * (Math.PI / 180);
+
+const WALL_STRIP_WIDTH = 20;
+const RAYS_COUNT = SCREEN_WIDTH / WALL_STRIP_WIDTH;
