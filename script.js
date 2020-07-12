@@ -52,7 +52,7 @@ class Player
         this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
         this.ctx = this.playerCanvas.context;
         this.ctx.fillStyle = '#fe0807';
-        this.radius = 3.0;
+        this.radius = 0.125 * TILE_SIZE;
     }
 
     update()
@@ -151,8 +151,8 @@ class Ray
         this.wallHitX = 0;
         this.wallHitY = 0;
 
-        this.facingDown = this.facing('down');
-        this.facingUp = !this.facingDown;
+        this.facingUp = this.facing('up');
+        this.facingDown = !this.facingUp;
 
         this.facingRight = this.facing('right');
         this.facingLeft = !this.facingRight;
@@ -255,9 +255,9 @@ class Ray
 
     facing(direction)
     {
-        if(direction === 'down')
+        if(direction === 'up')
         {
-            return this.angle > 0 && this.angle < Math.PI;
+            return this.angle < 0 || this.angle > Math.PI;
         }
 
         if(direction === 'right')
@@ -272,7 +272,7 @@ class Ray
     {
         this.ctx.beginPath();
         this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
-        this.ctx.lineWidth = 1.0;
+        //this.ctx.lineWidth = 1.0;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
           this.wallHitX,
