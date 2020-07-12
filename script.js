@@ -272,11 +272,11 @@ class Ray
     {
         this.ctx.beginPath();
         this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
-        //this.ctx.lineWidth = 1.0;
+        this.ctx.lineWidth = 1.0;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
-          this.wallHitX,
-          this.wallHitY
+          Math.round(this.wallHitX),
+          Math.round(this.wallHitY)
         );
         this.ctx.stroke();
         this.ctx.closePath();
@@ -305,7 +305,7 @@ class Raycast
           WALL_BORDER_COLOR
         );
         this.rayCanvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0.5, 2);
+        this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 1.0, 2);
         this.rays = [];
     }
 
