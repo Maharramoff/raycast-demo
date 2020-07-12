@@ -4,6 +4,26 @@ class Helper
     {
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
+
+    static normalizeAngel(angle)
+    {
+        angle %= (2 * Math.PI);
+        if (angle < 0)
+        {
+            angle += 2 * Math.PI;
+        }
+        return angle;
+    }
+
+    static distanceBetween2Points(x1, y1, x2, y2)
+    {
+        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+    }
+
+    static degree2Radian(degree)
+    {
+        return degree * (Math.PI / 180);
+    }
 }
 
 class Canvas
@@ -15,31 +35,6 @@ class Canvas
         this.canvas.height = height;
         document.body.append(this.canvas);
         this.context = this.canvas.getContext('2d');
-    }
-}
-
-class Ray
-{
-    constructor(angle, playerX, playerY, ctx)
-    {
-        this.angle = angle;
-        this.playerX = playerX;
-        this.playerY = playerY;
-        this.ctx = ctx;
-    }
-
-    draw()
-    {
-        this.ctx.beginPath();
-        this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
-        this.ctx.lineWidth = 0.5;
-        this.ctx.moveTo(this.playerX, this.playerY);
-        this.ctx.lineTo(
-          this.playerX + Math.cos(this.angle) * 30,
-          this.playerY + Math.sin(this.angle) * 30
-        );
-        this.ctx.stroke();
-        this.ctx.closePath();
     }
 }
 
@@ -139,6 +134,160 @@ class MiniMap
     }
 }
 
+class Ray
+{
+    horzWallHitX = 0;
+    vertWallHitX = 0;
+    vertWallHitY = 0;
+    horzWallHitY = 0;
+
+    constructor(angle, playerX, playerY, ctx)
+    {
+        this.angle = Helper.normalizeAngel(angle);
+        this.playerX = playerX;
+        this.playerY = playerY;
+        this.ctx = ctx;
+
+        this.wallHitX = 0;
+        this.wallHitY = 0;
+
+        this.facingDown = this.facing('down');
+        this.facingUp = !this.facingDown;
+
+        this.facingRight = this.facing('right');
+        this.facingLeft = !this.facingRight;
+    }
+
+    cast()
+    {
+        const horzHitDistance = this.horizontalHitDistance();
+        const vertHitDistance = this.verticalHitDistance();
+
+        this.wallHitX = (horzHitDistance < vertHitDistance) ? this.horzWallHitX : this.vertWallHitX;
+        this.wallHitY = (horzHitDistance < vertHitDistance) ? this.horzWallHitY : this.vertWallHitY;
+    }
+
+    horizontalHitDistance()
+    {
+        let xIntercept, yIntercept
+        let xStep, yStep
+        let foundHorzWallHit = false
+        yIntercept = Math.floor(this.playerY / TILE_SIZE) * TILE_SIZE;
+        yIntercept += this.facingDown ? TILE_SIZE : 0;
+        xIntercept = this.playerX + (yIntercept - this.playerY) / Math.tan(this.angle);
+        yStep = TILE_SIZE;
+        yStep *= this.facingUp ? -1 : 1;
+        xStep = TILE_SIZE / Math.tan(this.angle);
+        xStep *= (this.facingLeft && xStep > 0) ? -1 : 1;
+        xStep *= (this.facingRight && xStep < 0) ? -1 : 1;
+        let nextHorzTouchX = xIntercept
+        let nextHorzTouchY = yIntercept
+
+        if (this.facingUp)
+        {
+            nextHorzTouchY--;
+        }
+
+        while (nextHorzTouchX >= 0 && nextHorzTouchX <= SCREEN_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= SCREEN_HEIGHT)
+        {
+            if (this.hitWallAt(nextHorzTouchX, nextHorzTouchY))
+            {
+                foundHorzWallHit = true;
+                this.horzWallHitX = nextHorzTouchX;
+                this.horzWallHitY = nextHorzTouchY;
+                break;
+            }
+            else
+            {
+                nextHorzTouchX += xStep;
+                nextHorzTouchY += yStep;
+            }
+        }
+
+        return (foundHorzWallHit)
+          ? Helper.distanceBetween2Points(this.playerX, this.playerY, this.horzWallHitX, this.horzWallHitY)
+          : Number.MAX_VALUE;
+    }
+
+    verticalHitDistance()
+    {
+        let xIntercept, yIntercept
+        let xStep, yStep
+        let foundVertWallHit = false
+        xIntercept = Math.floor(this.playerX / TILE_SIZE) * TILE_SIZE;
+        xIntercept += this.facingRight ? TILE_SIZE : 0;
+        yIntercept = this.playerY + (xIntercept - this.playerX) * Math.tan(this.angle);
+
+        xStep = TILE_SIZE;
+        xStep *= this.facingLeft ? -1 : 1;
+        yStep = TILE_SIZE * Math.tan(this.angle);
+        yStep *= (this.facingUp && yStep > 0) ? -1 : 1;
+        yStep *= (this.facingDown && yStep < 0) ? -1 : 1;
+
+        let nextVertTouchX = xIntercept
+        let nextVertTouchY = yIntercept
+
+        if (this.facingLeft)
+        {
+            nextVertTouchX--;
+        }
+
+        while (nextVertTouchX >= 0 && nextVertTouchX <= SCREEN_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= SCREEN_HEIGHT)
+        {
+            if (this.hitWallAt(nextVertTouchX, nextVertTouchY))
+            {
+                foundVertWallHit = true;
+                this.vertWallHitX = nextVertTouchX;
+                this.vertWallHitY = nextVertTouchY;
+                break;
+            }
+            else
+            {
+                nextVertTouchX += xStep;
+                nextVertTouchY += yStep;
+            }
+        }
+
+        return (foundVertWallHit)
+          ? Helper.distanceBetween2Points(this.playerX, this.playerY, this.vertWallHitX, this.vertWallHitY)
+          : Number.MAX_VALUE;
+    }
+
+    hitWallAt(x, y)
+    {
+        return MAP_GRID[Math.floor(y / TILE_SIZE)][Math.floor(x / TILE_SIZE)] !== 0;
+    }
+
+    facing(direction)
+    {
+        if(direction === 'down')
+        {
+            return this.angle > 0 && this.angle < Math.PI;
+        }
+
+        if(direction === 'right')
+        {
+            return this.angle < Helper.degree2Radian(90) || this.angle > Helper.degree2Radian(270);
+        }
+
+        return undefined;
+    }
+
+    draw()
+    {
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
+        this.ctx.lineWidth = 0.5;
+        this.ctx.moveTo(this.playerX, this.playerY);
+        this.ctx.lineTo(
+          this.wallHitX,
+          this.wallHitY
+        );
+        this.ctx.stroke();
+        this.ctx.closePath();
+    }
+}
+
 class Raycast
 {
     constructor(canvas)
@@ -201,30 +350,30 @@ class Raycast
 
     castRays()
     {
+        let stripIdx = 0;
         let rayAngle = this.player.rotationAngle - (FIELD_OF_VIEW / 2);
         this.rays = [];
         for (let i = 0; i < RAYS_COUNT; i++)
         {
-            this.rays.push(new Ray(rayAngle, this.player.x, this.player.y, this.rayCanvas.context));
+            this.rays[i] = new Ray(rayAngle, this.player.x, this.player.y, this.rayCanvas.context);
+            this.rays[i].cast();
             rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
+            stripIdx++;
         }
     }
 
-    handleEvent(e)
+    handleEvent = e => (function (evtType, events)
     {
-        return (function (evtType, events)
+        switch (evtType)
         {
-            switch (evtType)
-            {
-                case events.KEYDOWN:
-                    this.onKeyDown(e);
-                    break;
-                case events.KEYUP:
-                    this.onKeyUp(e);
-                    break;
-            }
-        }.bind(this))(e.type, EVENTS);
-    }
+            case events.KEYDOWN:
+                this.onKeyDown(e);
+                break;
+            case events.KEYUP:
+                this.onKeyUp(e);
+                break;
+        }
+    }.bind(this))(e.type, EVENTS)
 
     _startListening()
     {
