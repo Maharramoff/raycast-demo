@@ -169,26 +169,25 @@ class Ray
 
     horizontalHitDistance()
     {
-        let xIntercept, yIntercept
-        let xStep, yStep
-        let foundHorzWallHit = false
-        yIntercept = Math.floor(this.playerY / TILE_SIZE) * TILE_SIZE;
-        yIntercept += this.facingDown ? TILE_SIZE : 0;
-        xIntercept = this.playerX + (yIntercept - this.playerY) / Math.tan(this.angle);
-        yStep = TILE_SIZE;
+        let yStep = TILE_SIZE;
         yStep *= this.facingUp ? -1 : 1;
-        xStep = TILE_SIZE / Math.tan(this.angle);
+        let xStep = TILE_SIZE / Math.tan(this.angle);
         xStep *= (this.facingLeft && xStep > 0) ? -1 : 1;
         xStep *= (this.facingRight && xStep < 0) ? -1 : 1;
-        let nextHorzTouchX = xIntercept
-        let nextHorzTouchY = yIntercept
+
+        let yIntercept = Math.floor(this.playerY / TILE_SIZE) * TILE_SIZE;
+        yIntercept += this.facingDown ? TILE_SIZE : 0;
+        let xIntercept = this.playerX + (yIntercept - this.playerY) / Math.tan(this.angle);
+        let nextHorzTouchY = yIntercept;
+        let nextHorzTouchX = xIntercept;
 
         if (this.facingUp)
         {
             nextHorzTouchY--;
         }
 
-        while (nextHorzTouchX >= 0 && nextHorzTouchX <= SCREEN_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY <= SCREEN_HEIGHT)
+        let foundHorzWallHit = false;
+        while (nextHorzTouchX >= 0 && nextHorzTouchX < SCREEN_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY < SCREEN_HEIGHT)
         {
             if (this.hitWallAt(nextHorzTouchX, nextHorzTouchY))
             {
@@ -211,28 +210,24 @@ class Ray
 
     verticalHitDistance()
     {
-        let xIntercept, yIntercept
-        let xStep, yStep
-        let foundVertWallHit = false
-        xIntercept = Math.floor(this.playerX / TILE_SIZE) * TILE_SIZE;
-        xIntercept += this.facingRight ? TILE_SIZE : 0;
-        yIntercept = this.playerY + (xIntercept - this.playerX) * Math.tan(this.angle);
-
-        xStep = TILE_SIZE;
-        xStep *= this.facingLeft ? -1 : 1;
-        yStep = TILE_SIZE * Math.tan(this.angle);
+        let xStep = TILE_SIZE * (this.facingLeft ? -1 : 1);
+        let yStep = TILE_SIZE * Math.tan(this.angle);
         yStep *= (this.facingUp && yStep > 0) ? -1 : 1;
         yStep *= (this.facingDown && yStep < 0) ? -1 : 1;
 
-        let nextVertTouchX = xIntercept
-        let nextVertTouchY = yIntercept
+        let xIntercept = Math.floor(this.playerX / TILE_SIZE) * TILE_SIZE;
+        xIntercept += this.facingRight ? TILE_SIZE : 0;
+        let yIntercept = this.playerY + (xIntercept - this.playerX) * Math.tan(this.angle);
+        let nextVertTouchX = xIntercept;
+        let nextVertTouchY = yIntercept;
 
         if (this.facingLeft)
         {
             nextVertTouchX--;
         }
 
-        while (nextVertTouchX >= 0 && nextVertTouchX <= SCREEN_WIDTH && nextVertTouchY >= 0 && nextVertTouchY <= SCREEN_HEIGHT)
+        let foundVertWallHit = false;
+        while (nextVertTouchX >= 0 && nextVertTouchX < SCREEN_WIDTH && nextVertTouchY >= 0 && nextVertTouchY < SCREEN_HEIGHT)
         {
             if (this.hitWallAt(nextVertTouchX, nextVertTouchY))
             {
@@ -277,7 +272,7 @@ class Ray
     {
         this.ctx.beginPath();
         this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
-        this.ctx.lineWidth = 0.5;
+        this.ctx.lineWidth = 1.0;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
           this.wallHitX,
