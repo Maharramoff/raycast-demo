@@ -272,7 +272,7 @@ class Ray
     {
         this.ctx.beginPath();
         this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
-        this.ctx.lineWidth = 1.0;
+        this.ctx.lineWidth = 2.0;
         this.ctx.moveTo(this.playerX, this.playerY);
         this.ctx.lineTo(
           Math.round(this.wallHitX),
