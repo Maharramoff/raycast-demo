@@ -5,7 +5,7 @@ class Helper
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
 
-    static normalizeAngel(angle)
+    static normalizeAngle(angle)
     {
         angle %= (2 * Math.PI);
         if (angle < 0)
@@ -147,7 +147,7 @@ class Ray
 
     constructor(angle, playerX, playerY, ctx)
     {
-        this.angle = Helper.normalizeAngel(angle);
+        this.angle = Helper.normalizeAngle(angle);
         this.playerX = playerX;
         this.playerY = playerY;
         this.ctx = ctx;
