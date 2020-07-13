@@ -89,7 +89,7 @@ class MiniMap
     {
         this.mapCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
         this.ctx = this.mapCanvas.context;
-        this.ctx.canvas.style.backgroundColor = spaceColor;
+        this.spaceColor = spaceColor;
         this.width = width;
         this.height = height;
         this.grid = mapData;
@@ -102,6 +102,9 @@ class MiniMap
     draw()
     {
         if (this.completed) return;
+
+        this.ctx.fillStyle = this.spaceColor;
+        this.ctx.fillRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         for (let y = 0; y < this.height; y++)
         {
@@ -293,7 +296,6 @@ class Raycast
         this.lastTime = Helper._timestamp();
         this.deltaTime = 0;
         this.elapsedTime = 0;
-        this.ctx = canvas.context;
         this.miniMap = new MiniMap(
           MAP_GRID, MAP_GRID[0].length,
           MAP_GRID.length,
