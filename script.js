@@ -159,6 +159,7 @@ class Ray
         this.facingRight = this.facing('right');
         this.facingLeft = !this.facingRight;
         this.distance = 0;
+        this.wallStripHeight = 0;
     }
 
     cast()
@@ -285,6 +286,17 @@ class Ray
         this.ctx.stroke();
         this.ctx.closePath();
     }
+
+    drawWall(ctx, rayNum)
+    {
+        ctx.fillStyle = '#87879f';
+        ctx.fillRect(
+          Math.round(rayNum * WALL_STRIP_WIDTH * 2),
+          Math.round((SCREEN_HEIGHT / 2) - (this.wallStripHeight / 2)),
+          WALL_STRIP_WIDTH * 2,
+          this.wallStripHeight
+        );
+    }
 }
 
 class Raycast
@@ -354,29 +366,11 @@ class Raycast
         {
             this.rays[i] = new Ray(rayAngle, this.player.x, this.player.y, this.rayCanvas.context);
             this.rays[i].cast();
-            rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
-            stripIdx++;
-        }
-    }
-
-    drawWalls()
-    {
-        this.ctx.fillStyle = '#7f2a19';
-        this.ctx.fillRect(0, 0, MAP_OFFSET, SCREEN_HEIGHT);
-
-        for (let i in this.rays)
-        {
             const wallDistance = this.rays[i].distance * Math.cos(this.rays[i].angle - this.player.rotationAngle);
             const distanceProjectionPlane = (MAP_OFFSET / 2) / Math.tan(FIELD_OF_VIEW / 2);
-            const wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane * 0.8;
-
-            this.ctx.fillStyle = '#87879f';
-            this.ctx.fillRect(
-              Math.round(i * WALL_STRIP_WIDTH * 2),
-              Math.round((SCREEN_HEIGHT / 2) - (wallStripHeight / 2)),
-              WALL_STRIP_WIDTH * 2,
-              wallStripHeight
-            );
+            this.rays[i].wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane * 0.8;
+            rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
+            stripIdx++;
         }
     }
 
@@ -435,11 +429,15 @@ class Raycast
 
     _draw()
     {
-        this.drawWalls();
         this.miniMap.draw();
         this.player.draw();
         this.rayCanvas.context.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.rays.forEach((ray) => ray.draw());
+        this.ctx.fillStyle = '#7f2a19';
+        this.ctx.fillRect(0, 0, MAP_OFFSET, SCREEN_HEIGHT);
+        this.rays.forEach((ray, idx) => {
+            ray.draw();
+            ray.drawWall(this.ctx, idx)
+        });
     }
 }
 
