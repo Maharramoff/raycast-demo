@@ -322,7 +322,7 @@ class Raycast
         );
         this.ctx = canvas.context;
         this.rayCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
-        this.player = new Player(SCREEN_WIDTH / 2 - TILE_SIZE / 2, SCREEN_HEIGHT / 2 - TILE_SIZE / 2, 1.0, 2);
+        this.player = new Player(SCREEN_WIDTH / 2 - TILE_SIZE / 2, SCREEN_HEIGHT / 2 - TILE_SIZE / 2, 1.0, 1.5);
         this.rays = [];
     }
 

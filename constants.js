@@ -27,8 +27,8 @@ const EVENTS = {
     KEYDOWN: 'keydown',
     KEYUP: 'keyup',
 };
-const FIELD_OF_VIEW = 60 * (Math.PI / 180);
-const FIELD_OF_VIEW_COLOR = 'rgba(242, 199, 114, .1)';
+const FIELD_OF_VIEW = 75 * (Math.PI / 180);
+const FIELD_OF_VIEW_COLOR = 'rgba(242, 199, 114, .4)';
 
 const WALL_STRIP_WIDTH = 1;
 const RAYS_COUNT = SCREEN_WIDTH / WALL_STRIP_WIDTH;
