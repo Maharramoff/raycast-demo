@@ -31,10 +31,12 @@ class Canvas
     constructor(width, height)
     {
         this.canvas = document.createElement('canvas');
-        this.canvas.width = width;
-        this.canvas.height = height;
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
         document.body.append(this.canvas);
         this.context = this.canvas.getContext('2d');
+        this.context.scale(dpr, dpr);
     }
 }
 
@@ -368,7 +370,7 @@ class Raycast
             this.rays[i].cast();
             const wallDistance = this.rays[i].distance * Math.cos(this.rays[i].angle - this.player.rotationAngle);
             const distanceProjectionPlane = (MAP_OFFSET / 2) / Math.tan(FIELD_OF_VIEW / 2);
-            this.rays[i].wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane * 0.8;
+            this.rays[i].wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane;
             rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
             stripIdx++;
         }
