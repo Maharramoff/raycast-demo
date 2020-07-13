@@ -40,7 +40,7 @@ class Canvas
 
 class Player
 {
-    constructor(ctx, x, y, speed, rotationSpeed)
+    constructor(x, y, speed, rotationSpeed)
     {
         this.x = x;
         this.y = y;
@@ -49,7 +49,7 @@ class Player
         this.rotationAngle = 0;
         this.moveDirection = 0;
         this.turnDirection = 0;
-        this.playerCanvas = new Canvas(ctx.canvas.width, ctx.canvas.height)
+        this.playerCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT)
         this.ctx = this.playerCanvas.context;
         this.ctx.fillStyle = '#fe0807';
         this.radius = 0.125 * TILE_SIZE;
@@ -70,9 +70,9 @@ class Player
 
     draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        this.ctx.arc(this.x + MAP_OFFSET, this.y, this.radius, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
@@ -85,9 +85,10 @@ class Player
 
 class MiniMap
 {
-    constructor(ctx, mapData, width, height, scale, wallColor, spaceColor, wallBorderColor)
+    constructor(mapData, width, height, scale, wallColor, spaceColor, wallBorderColor)
     {
-        this.ctx = ctx;
+        this.mapCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
+        this.ctx = this.mapCanvas.context;
         this.ctx.canvas.style.backgroundColor = spaceColor;
         this.width = width;
         this.height = height;
@@ -102,8 +103,6 @@ class MiniMap
     {
         if (this.completed) return;
 
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
         for (let y = 0; y < this.height; y++)
         {
             for (let x = 0; x < this.width; x++)
@@ -114,14 +113,14 @@ class MiniMap
                 {
                     this.ctx.fillStyle = this.wallColor;
                     this.ctx.fillRect(
-                      x * this.scale,
+                      x * this.scale + MAP_OFFSET,
                       y * this.scale,
                       this.scale,
                       this.scale
                     );
                     this.ctx.strokeStyle = this.wallBorderColor;
                     this.ctx.strokeRect(
-                      x * this.scale,
+                      x * this.scale + MAP_OFFSET,
                       y * this.scale,
                       this.scale,
                       this.scale)
@@ -273,9 +272,9 @@ class Ray
         this.ctx.beginPath();
         this.ctx.strokeStyle = FIELD_OF_VIEW_COLOR;
         this.ctx.lineWidth = 2.0;
-        this.ctx.moveTo(this.playerX, this.playerY);
+        this.ctx.moveTo(this.playerX + MAP_OFFSET, this.playerY);
         this.ctx.lineTo(
-          Math.round(this.wallHitX),
+          Math.round(this.wallHitX) + MAP_OFFSET,
           Math.round(this.wallHitY)
         );
         this.ctx.stroke();
@@ -296,7 +295,6 @@ class Raycast
         this.elapsedTime = 0;
         this.ctx = canvas.context;
         this.miniMap = new MiniMap(
-          this.ctx,
           MAP_GRID, MAP_GRID[0].length,
           MAP_GRID.length,
           TILE_SIZE,
@@ -304,8 +302,8 @@ class Raycast
           SPACE_COLOR,
           WALL_BORDER_COLOR
         );
-        this.rayCanvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.player = new Player(this.ctx, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 1.0, 2);
+        this.rayCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
+        this.player = new Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 1.0, 2);
         this.rays = [];
     }
 
@@ -414,10 +412,10 @@ class Raycast
     {
         this.miniMap.draw();
         this.player.draw();
-        this.rayCanvas.context.canvas.width = this.rayCanvas.context.canvas.width;
+        this.rayCanvas.context.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.rays.forEach((ray) => ray.draw());
     }
 }
 
-const canvas = new Canvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+const canvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
 new Raycast(canvas).start();
