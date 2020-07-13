@@ -158,6 +158,7 @@ class Ray
 
         this.facingRight = this.facing('right');
         this.facingLeft = !this.facingRight;
+        this.distance = 0;
     }
 
     cast()
@@ -167,6 +168,7 @@ class Ray
 
         this.wallHitX = (horzHitDistance < vertHitDistance) ? this.horzWallHitX : this.vertWallHitX;
         this.wallHitY = (horzHitDistance < vertHitDistance) ? this.horzWallHitY : this.vertWallHitY;
+        this.distance = (horzHitDistance < vertHitDistance) ? horzHitDistance : vertHitDistance;
     }
 
     horizontalHitDistance()
@@ -304,8 +306,9 @@ class Raycast
           SPACE_COLOR,
           WALL_BORDER_COLOR
         );
+        this.ctx = canvas.context;
         this.rayCanvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
-        this.player = new Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 1.0, 2);
+        this.player = new Player(SCREEN_WIDTH / 2 - TILE_SIZE / 2, SCREEN_HEIGHT / 2 - TILE_SIZE / 2, 1.0, 2);
         this.rays = [];
     }
 
@@ -347,13 +350,33 @@ class Raycast
     {
         let stripIdx = 0;
         let rayAngle = this.player.rotationAngle - (FIELD_OF_VIEW / 2);
-        this.rays = [];
         for (let i = 0; i < RAYS_COUNT; i++)
         {
             this.rays[i] = new Ray(rayAngle, this.player.x, this.player.y, this.rayCanvas.context);
             this.rays[i].cast();
             rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
             stripIdx++;
+        }
+    }
+
+    drawWalls()
+    {
+        this.ctx.fillStyle = '#7f2a19';
+        this.ctx.fillRect(0, 0, MAP_OFFSET, SCREEN_HEIGHT);
+
+        for (let i in this.rays)
+        {
+            const wallDistance = this.rays[i].distance * Math.cos(this.rays[i].angle - this.player.rotationAngle);
+            const distanceProjectionPlane = (MAP_OFFSET / 2) / Math.tan(FIELD_OF_VIEW / 2);
+            const wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane * 0.8;
+
+            this.ctx.fillStyle = '#87879f';
+            this.ctx.fillRect(
+              Math.round(i * WALL_STRIP_WIDTH * 2),
+              Math.round((SCREEN_HEIGHT / 2) - (wallStripHeight / 2)),
+              WALL_STRIP_WIDTH * 2,
+              wallStripHeight
+            );
         }
     }
 
@@ -412,6 +435,7 @@ class Raycast
 
     _draw()
     {
+        this.drawWalls();
         this.miniMap.draw();
         this.player.draw();
         this.rayCanvas.context.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -420,4 +444,5 @@ class Raycast
 }
 
 const canvas = new Canvas(SCREEN_WIDTH + MAP_OFFSET, SCREEN_HEIGHT);
-new Raycast(canvas).start();
+const rayCast = new Raycast(canvas);
+rayCast.start();
