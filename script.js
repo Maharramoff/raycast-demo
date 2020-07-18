@@ -163,6 +163,7 @@ class Ray
         this.distance = 0;
         this.wallStripHeight = 0;
         this.alpha = 1.0;
+        this.hitWasVertical = false;
     }
 
     cast()
@@ -170,9 +171,20 @@ class Ray
         const horzHitDistance = this.horizontalHitDistance();
         const vertHitDistance = this.verticalHitDistance();
 
-        this.wallHitX = (horzHitDistance < vertHitDistance) ? this.horzWallHitX : this.vertWallHitX;
-        this.wallHitY = (horzHitDistance < vertHitDistance) ? this.horzWallHitY : this.vertWallHitY;
-        this.distance = (horzHitDistance < vertHitDistance) ? horzHitDistance : vertHitDistance;
+        if (horzHitDistance < vertHitDistance)
+        {
+            this.wallHitX = this.horzWallHitX;
+            this.wallHitY = this.horzWallHitY;
+            this.distance = horzHitDistance;
+            this.hitWasVertical = true;
+        }
+        else
+        {
+            this.wallHitX = this.vertWallHitX;
+            this.wallHitY = this.vertWallHitY;
+            this.distance = vertHitDistance;
+            this.hitWasVertical = false;
+        }
     }
 
     horizontalHitDistance()
@@ -253,12 +265,12 @@ class Ray
 
     facing(direction)
     {
-        if(direction === 'up')
+        if (direction === 'up')
         {
             return this.angle < 0 || this.angle > Math.PI;
         }
 
-        if(direction === 'right')
+        if (direction === 'right')
         {
             return this.angle < Helper.degree2Radian(90) || this.angle > Helper.degree2Radian(270);
         }
@@ -282,7 +294,7 @@ class Ray
 
     drawWall(ctx, rayNum)
     {
-        ctx.fillStyle = 'rgba(135, 135, 159, ' + this.alpha + ')';
+        ctx.fillStyle = 'rgba(' + (this.hitWasVertical ? WALL_LIGHT_COLOR : WALL_DARK_COLOR) + ', ' + this.alpha + ')';
         ctx.fillRect(
           Math.round(rayNum * WALL_STRIP_WIDTH * 2),
           Math.round((SCREEN_HEIGHT / 2) - (this.wallStripHeight / 2)),
@@ -353,7 +365,6 @@ class Raycast
 
     castRays()
     {
-        let stripIdx = 0;
         let rayAngle = this.player.rotationAngle - (FIELD_OF_VIEW / 2);
         for (let i = 0; i < RAYS_COUNT; i++)
         {
@@ -362,9 +373,8 @@ class Raycast
             const wallDistance = this.rays[i].distance * Math.cos(this.rays[i].angle - this.player.rotationAngle);
             const distanceProjectionPlane = (MAP_OFFSET / 2) / Math.tan(FIELD_OF_VIEW / 2);
             this.rays[i].wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane;
-            this.rays[i].alpha = 60 / wallDistance;
+            this.rays[i].alpha = WALL_ALPHA_FACTOR / wallDistance;
             rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
-            stripIdx++;
         }
     }
 
@@ -428,7 +438,8 @@ class Raycast
         this.rayCanvas.context.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         this.ctx.fillStyle = '#7f2a19';
         this.ctx.fillRect(0, 0, MAP_OFFSET, SCREEN_HEIGHT);
-        this.rays.forEach((ray, idx) => {
+        this.rays.forEach((ray, idx) =>
+        {
             ray.draw();
             ray.drawWall(this.ctx, idx)
         });
