@@ -162,6 +162,7 @@ class Ray
         this.facingLeft = !this.facingRight;
         this.distance = 0;
         this.wallStripHeight = 0;
+        this.alpha = 1.0;
     }
 
     cast()
@@ -291,7 +292,7 @@ class Ray
 
     drawWall(ctx, rayNum)
     {
-        ctx.fillStyle = '#87879f';
+        ctx.fillStyle = 'rgba(135, 135, 159, ' + this.alpha + ')';
         ctx.fillRect(
           Math.round(rayNum * WALL_STRIP_WIDTH * 2),
           Math.round((SCREEN_HEIGHT / 2) - (this.wallStripHeight / 2)),
@@ -371,6 +372,7 @@ class Raycast
             const wallDistance = this.rays[i].distance * Math.cos(this.rays[i].angle - this.player.rotationAngle);
             const distanceProjectionPlane = (MAP_OFFSET / 2) / Math.tan(FIELD_OF_VIEW / 2);
             this.rays[i].wallStripHeight = (TILE_SIZE / wallDistance) * distanceProjectionPlane;
+            this.rays[i].alpha = 60 / wallDistance;
             rayAngle += FIELD_OF_VIEW / RAYS_COUNT;
             stripIdx++;
         }
