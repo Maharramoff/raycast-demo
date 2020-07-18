@@ -436,7 +436,11 @@ class Raycast
         this.miniMap.draw();
         this.player.draw();
         this.rayCanvas.context.clearRect(MAP_OFFSET, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-        this.ctx.fillStyle = '#7f2a19';
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, SCREEN_HEIGHT);
+        gradient.addColorStop(0, BACKGROUND_COLOR);
+        gradient.addColorStop(0.5, '#000');
+        gradient.addColorStop(1, BACKGROUND_COLOR);
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, MAP_OFFSET, SCREEN_HEIGHT);
         this.rays.forEach((ray, idx) =>
         {
