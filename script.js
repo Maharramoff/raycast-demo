@@ -189,15 +189,10 @@ class Ray
         let nextHorzTouchY = yIntercept;
         let nextHorzTouchX = xIntercept;
 
-        if (this.facingUp)
-        {
-            nextHorzTouchY--;
-        }
-
         let foundHorzWallHit = false;
         while (nextHorzTouchX >= 0 && nextHorzTouchX < SCREEN_WIDTH && nextHorzTouchY >= 0 && nextHorzTouchY < SCREEN_HEIGHT)
         {
-            if (this.hitWallAt(nextHorzTouchX, nextHorzTouchY))
+            if (this.hitWallAt(nextHorzTouchX, nextHorzTouchY - (this.facingUp ? 1 : 0)))
             {
                 foundHorzWallHit = true;
                 this.horzWallHitX = nextHorzTouchX;
@@ -229,15 +224,10 @@ class Ray
         let nextVertTouchX = xIntercept;
         let nextVertTouchY = yIntercept;
 
-        if (this.facingLeft)
-        {
-            nextVertTouchX--;
-        }
-
         let foundVertWallHit = false;
         while (nextVertTouchX >= 0 && nextVertTouchX < SCREEN_WIDTH && nextVertTouchY >= 0 && nextVertTouchY < SCREEN_HEIGHT)
         {
-            if (this.hitWallAt(nextVertTouchX, nextVertTouchY))
+            if (this.hitWallAt(nextVertTouchX - (this.facingLeft ? 1 : 0), nextVertTouchY))
             {
                 foundVertWallHit = true;
                 this.vertWallHitX = nextVertTouchX;
